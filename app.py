@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, session, redirect, url_for
 
 from database.db import get_db, init_db, seed_db
@@ -102,6 +104,104 @@ def profile():
         summary_stats=summary_stats,
         transactions=transactions,
         category_breakdown=category_breakdown,
+    )
+
+
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    conn = get_db()
+
+    totals = conn.execute(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+
+    category_rows = conn.execute(
+        """
+        SELECT category, COALESCE(SUM(amount), 0) AS total
+        FROM expenses
+        WHERE user_id = ?
+        GROUP BY category
+        ORDER BY total DESC
+        """,
+        (user_id,),
+    ).fetchall()
+
+    monthly_rows = conn.execute(
+        """
+        SELECT strftime('%Y-%m', date) AS month, COALESCE(SUM(amount), 0) AS total
+        FROM expenses
+        WHERE user_id = ?
+        GROUP BY month
+        ORDER BY month
+        """,
+        (user_id,),
+    ).fetchall()
+
+    top_expense_rows = conn.execute(
+        """
+        SELECT date, description, category, amount
+        FROM expenses
+        WHERE user_id = ?
+        ORDER BY amount DESC
+        LIMIT 5
+        """,
+        (user_id,),
+    ).fetchall()
+
+    conn.close()
+
+    total_spent = totals["total"]
+    transaction_count = totals["count"]
+    avg_transaction = total_spent / transaction_count if transaction_count else 0
+    top_category = category_rows[0]["category"] if category_rows else "—"
+
+    summary_stats = [
+        {"label": "Total Spent", "value": f"${total_spent:,.2f}"},
+        {"label": "Transactions", "value": str(transaction_count)},
+        {"label": "Avg per Transaction", "value": f"${avg_transaction:,.2f}"},
+        {"label": "Top Category", "value": top_category},
+    ]
+
+    category_breakdown = [
+        {
+            "category": row["category"],
+            "amount": f"${row['total']:,.2f}",
+            "percent": round((row["total"] / total_spent) * 100) if total_spent else 0,
+        }
+        for row in category_rows
+    ]
+
+    max_month_total = max((row["total"] for row in monthly_rows), default=0)
+    monthly_trend = [
+        {
+            "label": datetime.strptime(row["month"], "%Y-%m").strftime("%b"),
+            "amount": f"${row['total']:,.2f}",
+            "percent": round((row["total"] / max_month_total) * 100) if max_month_total else 0,
+        }
+        for row in monthly_rows
+    ]
+
+    top_expenses = [
+        {
+            "date": row["date"],
+            "description": row["description"],
+            "category": row["category"],
+            "amount": f"${row['amount']:,.2f}",
+        }
+        for row in top_expense_rows
+    ]
+
+    return render_template(
+        "analytics.html",
+        summary_stats=summary_stats,
+        category_breakdown=category_breakdown,
+        monthly_trend=monthly_trend,
+        top_expenses=top_expenses,
     )
 
 

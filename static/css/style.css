@@ -746,6 +746,107 @@ a { color: inherit; text-decoration: none; }
 .cat-bar-other { background: var(--cat-other); }
 
 /* ------------------------------------------------------------------ */
+/* Analytics page                                                      */
+/* ------------------------------------------------------------------ */
+
+.analytics-section {
+    padding: 3rem 2rem 6rem;
+}
+
+.analytics-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.analytics-header { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.analytics-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+}
+
+.analytics-subtitle { color: var(--ink-muted); font-size: 0.95rem; }
+
+.analytics-stats { margin: 0; grid-template-columns: repeat(4, 1fr); }
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+.analytics-bars .mock-bar-row {
+    grid-template-columns: 90px 1fr 70px;
+}
+
+.analytics-bar-amount {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.analytics-empty {
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+}
+
+.trend-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.25rem;
+    height: 190px;
+}
+
+.trend-bar-col {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.trend-bar-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.trend-bar-track {
+    width: 100%;
+    max-width: 44px;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+}
+
+.trend-bar {
+    width: 100%;
+    min-height: 4px;
+    background: var(--accent);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 0.6s ease;
+}
+
+.trend-bar-label {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+}
+
+@media (max-width: 900px) {
+    .analytics-stats { grid-template-columns: repeat(2, 1fr); }
+    .analytics-grid { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ */
 /* Video modal                                                         */
 /* ------------------------------------------------------------------ */
 

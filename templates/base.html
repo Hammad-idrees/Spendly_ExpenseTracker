@@ -21,6 +21,7 @@
             <div class="nav-links">
                 {# Login (Step 3) should set session["user_id"] and session["user_name"] on success #}
                 {% if session.user_id %}
+                <a href="{{ url_for('analytics') }}">Analytics</a>
                 <a href="{{ url_for('profile') }}">{{ session.user_name or "My Profile" }}</a>
                 <a href="{{ url_for('logout') }}" class="nav-cta">Log out</a>
                 {% else %}
